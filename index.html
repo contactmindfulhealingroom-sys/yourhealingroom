@@ -242,7 +242,27 @@ Music engages the limbic system; writing organizes scattered thoughts. Together,
         content: `Boundaries are bridges, not walls. A kind boundary names the need, offers the why, and proposes an alternative when possible. Script: “Thank you for asking. I’m at capacity this week, but I can revisit next Tuesday.”`,
       },
     ];
+        <!-- Embedded Blogger Blog - Styled in Teal and Gold -->
+<section style="background-color: #e6f1f1; padding: 2rem; border-radius: 1rem; margin-top: 3rem; border: 2px solid gold;">
+  <h2 style="color: teal; font-size: 2rem; font-weight: bold; text-align: center; margin-bottom: 1rem;">
+    🌿 Visit The Healing Room Blog
+  </h2>
+  <p style="text-align: center; font-style: italic; color: #444; margin-bottom: 1.5rem;">
+    Gentle insights, soulful reflections, and self-care rituals waiting for you.
+  </p>
+  <div style="box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); border-radius: 0.75rem; overflow: hidden;">
+    <iframe 
+      src="https://mindfulhealingroom.blogspot.com/" 
+      width="100%" 
+      height="800" 
+      style="border: none;" 
+      loading="lazy"
+      title="Mindful Healing Room Blog">
+    </iframe>
+  </div>
+</section>
 
+    
     const CATEGORIES = ["All", ...Array.from(new Set(POSTS.map(p => p.category)))];
     const TAGS = Array.from(new Set(POSTS.flatMap(p => p.tags)));
 
