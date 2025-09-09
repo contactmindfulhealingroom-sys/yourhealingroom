@@ -1,424 +1,390 @@
-import React, { useMemo, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Search, Tag, Menu, X, BookText, Mail, Calendar, ChevronRight, ChevronLeft, Heart, Sparkles } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
-
-/**
- * THE HEALING ROOM — Single-file React Blog
- * - Tailwind for styling
- * - shadcn/ui for components
- * - framer-motion for animations
- * - Lucide icons
- *
- * Notes:
- * - This is a front-end only demo. Newsletter form logs to console.
- * - Replace cover images, posts, and brand colors as desired.
- */
-
-const POSTS = [
-  {
-    id: 1,
-    title: "The Healing Power of Journaling & Music",
-    date: "2025-08-31",
-    category: "Mindfulness",
-    tags: ["journaling", "music", "self-care"],
-    cover: "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?q=80&w=2400&auto=format&fit=crop",
-    excerpt:
-      "How a simple pen, a quiet track, and ten minutes can calm your nervous system and reset your day.",
-    content:
-      `When life feels loud, simple rituals bring you back. Start with a timer for ten minutes. Write without editing—three lines about how you feel, three lines about what you need, and three lines about what you will do next. Then press play on a mellow playlist and breathe.
-\nMusic engages the limbic system; writing organizes scattered thoughts. Together, they reduce cognitive load and create a gentle path out of stress. Try it for five days and notice your baseline energy, sleep quality, and mood.`,
-  },
-  {
-    id: 2,
-    title: "Micro-Rest: 7 Tiny Breaks That Restore You",
-    date: "2025-08-18",
-    category: "Energy",
-    tags: ["rest", "habits", "productivity"],
-    cover: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=2400&auto=format&fit=crop",
-    excerpt:
-      "Recovery doesn’t require hours—just intention. Here are science-backed micro-breaks you can take anywhere.",
-    content:
-      `Micro-rest is about releasing tension before it compounds. Try a 60-second box-breathing cycle, a brisk 3-minute walk, a sunlight check, or a no-phone stretch. These tiny resets lower stress hormones and restore focus.`,
-  },
-  {
-    id: 3,
-    title: "Boundaries That Feel Kind (But Firm)",
-    date: "2025-07-29",
-    category: "Mindset",
-    tags: ["boundaries", "confidence", "communication"],
-    cover: "https://images.unsplash.com/photo-1496307042754-b4aa456c4a2d?q=80&w=2400&auto=format&fit=crop",
-    excerpt:
-      "How to say no with warmth, protect your energy, and still be you.",
-    content:
-      `Boundaries are bridges, not walls. A kind boundary names the need, offers the why, and proposes an alternative when possible. Script: “Thank you for asking. I’m at capacity this week, but I can revisit next Tuesday.”`,
-  },
-];
-
-const CATEGORIES = ["All", ...Array.from(new Set(POSTS.map(p => p.category)))];
-const TAGS = Array.from(new Set(POSTS.flatMap(p => p.tags)));
-
-function formatDate(iso) {
-  const d = new Date(iso + "T00:00:00");
-  return d.toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
-}
-
-function Placeholder({ title }) {
-  return (
-    <div className="text-center text-sm text-muted-foreground">
-      <p>{title}</p>
-    </div>
-  );
-}
-
-export default function App() {
-  const [query, setQuery] = useState("");
-  const [category, setCategory] = useState("All");
-  const [activeTag, setActiveTag] = useState("");
-  const [openMenu, setOpenMenu] = useState(false);
-  const [selectedPost, setSelectedPost] = useState(null);
-  const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
-
-  const visiblePosts = useMemo(() => {
-    return POSTS.filter(p => {
-      const matchesQuery = `${p.title} ${p.excerpt} ${p.content}`.toLowerCase().includes(query.toLowerCase());
-      const matchesCategory = category === "All" || p.category === category;
-      const matchesTag = !activeTag || p.tags.includes(activeTag);
-      return matchesQuery && matchesCategory && matchesTag;
-    });
-  }, [query, category, activeTag]);
-
-  const onSubscribe = (e) => {
-    e.preventDefault();
-    console.log("Newsletter signup:", email);
-    setEmail("");
-    alert("Subscribed! (demo)");
-  };
-
-  const onContact = (e) => {
-    e.preventDefault();
-    console.log("Contact:", { email, message });
-    setMessage("");
-    alert("Message sent! (demo)");
-  };
-
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-teal-50 to-white text-slate-800">
-      {/* Top Bar */}
-      <header className="sticky top-0 z-20 backdrop-blur bg-white/70 border-b">
-        <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Sparkles className="size-5 text-amber-500" />
-            <span className="font-black tracking-tight text-teal-700 text-lg">The Healing Room</span>
-          </div>
-          <nav className="hidden md:flex items-center gap-6 text-sm">
-            <a className="hover:text-teal-700" href="#posts">Posts</a>
-            <a className="hover:text-teal-700" href="#about">About</a>
-            <a className="hover:text-teal-700" href="#contact">Contact</a>
-            <a className="hover:text-teal-700" href="#subscribe">Subscribe</a>
-          </nav>
-          <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setOpenMenu(true)}>
-            <Menu className="size-5" />
-          </Button>
-        </div>
-        {/* Mobile Menu */}
-        <AnimatePresence>
-          {openMenu && (
-            <motion.div
-              initial={{ y: -10, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: -10, opacity: 0 }}
-              className="md:hidden border-t bg-white"
-            >
-              <div className="mx-auto max-w-6xl px-4 py-4 space-y-2">
-                <div className="flex justify-end">
-                  <Button variant="ghost" size="icon" onClick={() => setOpenMenu(false)}>
-                    <X className="size-5" />
-                  </Button>
-                </div>
-                <a className="block py-2" href="#posts" onClick={() => setOpenMenu(false)}>Posts</a>
-                <a className="block py-2" href="#about" onClick={() => setOpenMenu(false)}>About</a>
-                <a className="block py-2" href="#contact" onClick={() => setOpenMenu(false)}>Contact</a>
-                <a className="block py-2" href="#subscribe" onClick={() => setOpenMenu(false)}>Subscribe</a>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </header>
-
-      {/* Hero */}
-      <section className="mx-auto max-w-6xl px-4 py-12 md:py-16">
-        <div className="grid md:grid-cols-2 gap-8 items-center">
-          <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-            <h1 className="text-3xl md:text-5xl font-black tracking-tight text-slate-900">
-              Gentle tools for a stronger you
-            </h1>
-            <p className="mt-4 text-slate-600 text-lg">
-              Read simple, science‑aware tips on self‑care, mindset, and energy that fit into real life.
-            </p>
-            <div className="mt-6 flex items-center gap-3">
-              <a href="#posts"><Button className="bg-teal-600 hover:bg-teal-700">Read Posts</Button></a>
-              <a href="#subscribe"><Button variant="outline">Subscribe</Button></a>
-            </div>
-          </motion.div>
-          <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}>
-            <div className="relative">
-              <img
-                src="https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=2400&auto=format&fit=crop"
-                alt="Notebook, candle, and headphones"
-                className="rounded-3xl shadow-2xl"
-              />
-              <div className="absolute -bottom-4 -left-4 bg-amber-400 text-white rounded-2xl px-3 py-2 shadow-lg flex items-center gap-2">
-                <Heart className="size-4" />
-                <span className="text-sm font-semibold">Self‑care friendly</span>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Filters & Search */}
-      <section id="posts" className="mx-auto max-w-6xl px-4">
-        <Card>
-          <CardHeader className="gap-2">
-            <CardTitle className="flex items-center gap-2 text-teal-700"><BookText className="size-5" /> Latest Posts</CardTitle>
-            <CardDescription>Browse by category, tag, or search a keyword.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
-              <div className="flex items-center gap-2">
-                <div className="flex flex-wrap gap-2">
-                  {CATEGORIES.map((c) => (
-                    <Button
-                      key={c}
-                      size="sm"
-                      variant={category === c ? "default" : "outline"}
-                      className={category === c ? "bg-teal-600 hover:bg-teal-700" : ""}
-                      onClick={() => setCategory(c)}
-                    >
-                      {c}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-              <div className="relative w-full md:w-80">
-                <Input
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search posts..."
-                  className="pl-9"
-                />
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
-              </div>
-            </div>
-
-            {/* Tags */}
-            <div className="mt-4 flex flex-wrap gap-2">
-              {TAGS.map((t) => (
-                <Badge
-                  key={t}
-                  onClick={() => setActiveTag(activeTag === t ? "" : t)}
-                  className={`cursor-pointer select-none ${activeTag === t ? "bg-amber-500" : ""}`}
-                >
-                  <Tag className="size-3 mr-1" /> {t}
-                </Badge>
-              ))}
-            </div>
-
-            {/* Posts Grid */}
-            <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {visiblePosts.map((p) => (
-                <motion.div key={p.id} layout initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-                  <Card className="h-full flex flex-col">
-                    <img src={p.cover} alt={p.title} className="h-40 w-full object-cover rounded-t-xl" />
-                    <CardHeader>
-                      <CardDescription className="flex items-center gap-2">
-                        <Calendar className="size-4" /> {formatDate(p.date)} · {p.category}
-                      </CardDescription>
-                      <CardTitle className="leading-tight">{p.title}</CardTitle>
-                      <CardDescription>{p.excerpt}</CardDescription>
-                    </CardHeader>
-                    <CardFooter className="mt-auto">
-                      <Button className="bg-teal-600 hover:bg-teal-700" onClick={() => setSelectedPost(p)}>
-                        Read More <ChevronRight className="size-4 ml-2" />
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
-
-            {visiblePosts.length === 0 && (
-              <div className="mt-8"><Placeholder title="No posts match your filters yet." /></div>
-            )}
-          </CardContent>
-        </Card>
-      </section>
-
-      {/* Post Modal */}
-      <AnimatePresence>
-        {selectedPost && (
-          <motion.div
-            className="fixed inset-0 z-30 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setSelectedPost(null)}
-          >
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 20, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-3xl shadow-2xl max-w-3xl w-full overflow-hidden"
-            >
-              <div className="relative">
-                <img src={selectedPost.cover} alt={selectedPost.title} className="h-56 w-full object-cover" />
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  className="absolute top-3 right-3"
-                  onClick={() => setSelectedPost(null)}
-                >
-                  <X className="size-5" />
-                </Button>
-              </div>
-              <div className="p-6">
-                <div className="text-sm text-slate-500 mb-2 flex items-center gap-2">
-                  <Calendar className="size-4" /> {formatDate(selectedPost.date)} · {selectedPost.category}
-                </div>
-                <h3 className="text-2xl font-bold text-slate-900">{selectedPost.title}</h3>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {selectedPost.tags.map(t => (
-                    <Badge key={t} variant="secondary"><Tag className="size-3 mr-1" /> {t}</Badge>
-                  ))}
-                </div>
-                <p className="mt-4 whitespace-pre-line leading-relaxed text-slate-700">{selectedPost.content}</p>
-                <div className="mt-6 flex items-center gap-3">
-                  <Button variant="outline" onClick={() => setSelectedPost(null)}>
-                    <ChevronLeft className="size-4 mr-2" /> Back
-                  </Button>
-                  <a href="#subscribe"><Button className="bg-amber-500 hover:bg-amber-600">Subscribe</Button></a>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* About */}
-      <section id="about" className="mx-auto max-w-6xl px-4 py-12">
-        <div className="grid md:grid-cols-2 gap-8 items-start">
-          <div>
-            <h2 className="text-2xl font-black text-teal-700">About The Healing Room</h2>
-            <p className="mt-3 text-slate-700 leading-relaxed">
-              The Healing Room is a calm corner of the internet where we practice practical self‑care. We mix gentle
-              routines with evidence‑aware insights: journaling prompts, music‑supported focus, micro‑rest, and kind
-              boundaries. Everything here is designed to be doable on your busiest days.
-            </p>
-          </div>
-          <Card>
-            <CardHeader>
-              <CardTitle>Mission</CardTitle>
-              <CardDescription>Simple tools. Warmer days. Sustainable energy.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex gap-3">
-                <div className="size-2 mt-2 rounded-full bg-amber-500" />
-                <p>Make self‑care small enough to start and strong enough to matter.</p>
-              </div>
-              <div className="flex gap-3">
-                <div className="size-2 mt-2 rounded-full bg-amber-500" />
-                <p>Celebrate progress over perfection—five minutes count.</p>
-              </div>
-              <div className="flex gap-3">
-                <div className="size-2 mt-2 rounded-full bg-amber-500" />
-                <p>Build habits that protect your focus, time, and heart.</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      {/* Contact */}
-      <section id="contact" className="mx-auto max-w-6xl px-4 py-12">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2"><Mail className="size-5" /> Contact</CardTitle>
-            <CardDescription>Questions, collabs, or a kind note—drop a line.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={onContact} className="grid md:grid-cols-2 gap-4">
-              <div className="md:col-span-2">
-                <Input type="email" required placeholder="Your email" value={email} onChange={(e)=>setEmail(e.target.value)} />
-              </div>
-              <div className="md:col-span-2">
-                <Textarea required rows={5} placeholder="Your message" value={message} onChange={(e)=>setMessage(e.target.value)} />
-              </div>
-              <div className="md:col-span-2">
-                <Button className="bg-teal-600 hover:bg-teal-700">Send</Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-      </section>
-
-      {/* Subscribe */}
-      <section id="subscribe" className="mx-auto max-w-6xl px-4 pb-16">
-        <Card>
-          <CardHeader>
-            <CardTitle>Subscribe</CardTitle>
-            <CardDescription>Get fresh posts in your inbox once a week.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={onSubscribe} className="flex flex-col sm:flex-row gap-3">
-              <Input type="email" required placeholder="Your email" value={email} onChange={(e)=>setEmail(e.target.value)} />
-              <Button type="submit" className="bg-amber-500 hover:bg-amber-600">Join Free</Button>
-            </form>
-          </CardContent>
-          <CardFooter>
-            <p className="text-xs text-slate-500">We respect your time. Unsubscribe anytime.</p>
-          </CardFooter>
-        </Card>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t">
-        <div className="mx-auto max-w-6xl px-4 py-8 text-sm text-slate-500 flex flex-col md:flex-row items-center justify-between gap-3">
-          <div>© {new Date().getFullYear()} The Healing Room • Made with 💚</div>
-          <div className="flex items-center gap-4">
-            <a href="#about" className="hover:text-teal-700">About</a>
-            <a href="#contact" className="hover:text-teal-700">Contact</a>
-            <a href="#subscribe" className="hover:text-teal-700">Newsletter</a>
-          </div>
-        </div>
-      </footer>
-    </div>
-  );
-}
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Welcome to The Healing Room</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The Healing Room — Blog</title>
+  <!-- Tailwind via CDN (no build needed) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            tealbrand: { DEFAULT: '#0f766e' },
+            amberbrand: { DEFAULT: '#f59e0b' }
+          },
+          borderRadius: { '3xl': '1.5rem' }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://images.unsplash.com">
+  <link rel="preconnect" href="https://unpkg.com">
+  <!-- Lucide icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <meta name="description" content="Gentle tools for a stronger you — practical self‑care, mindset, and energy tips."/>
+  <style>
+    .card { @apply bg-white rounded-3xl shadow border border-gray-100; }
+    .btn { @apply inline-flex items-center justify-center rounded-xl px-4 py-2 font-medium transition; }
+    .btn-primary { @apply bg-tealbrand text-white hover:bg-teal-700; }
+    .btn-ghost { @apply hover:bg-gray-100; }
+    .btn-amber { @apply bg-amberbrand text-white hover:bg-amber-600; }
+    .badge { @apply inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs bg-gray-100; }
+    .link { @apply hover:text-tealbrand; }
+    .container { @apply max-w-6xl mx-auto px-4; }
+    .backdrop { backdrop-filter: blur(6px); }
+  </style>
 </head>
-<body style="font-family: sans-serif; text-align: center; padding: 50px;">
-
-  <h1>Welcome to The Healing Room 🌿</h1>
-  <p>This is a peaceful space to reflect, grow, and heal.</p>
-
-  <div style="margin-top: 30px;">
-    <a href="https://mindfulhealingroom.blogspot.com/" target="_blank" style="text-decoration: none;">
-      <button style="background-color: #4CAF50; color: white; padding: 12px 24px; font-size: 16px; border: none; border-radius: 6px; cursor: pointer;">
-        🌿 Visit My Blog
+<body class="min-h-screen bg-gradient-to-b from-teal-50 to-white text-slate-800">
+  <!-- Header -->
+  <header class="sticky top-0 z-20 bg-white/70 backdrop border-b">
+    <div class="container py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <i data-lucide="sparkles" class="w-5 h-5 text-amberbrand"></i>
+        <span class="font-black tracking-tight text-tealbrand text-lg">The Healing Room</span>
+      </div>
+      <nav class="hidden md:flex items-center gap-6 text-sm">
+        <a class="link" href="#posts">Posts</a>
+        <a class="link" href="#about">About</a>
+        <a class="link" href="#contact">Contact</a>
+        <a class="link" href="#subscribe">Subscribe</a>
+      </nav>
+      <button id="openMenu" class="btn btn-ghost md:hidden" aria-label="Open menu">
+        <i data-lucide="menu" class="w-5 h-5"></i>
       </button>
-    </a>
+    </div>
+    <!-- Mobile menu -->
+    <div id="mobileMenu" class="hidden border-t bg-white">
+      <div class="container py-3 space-y-3">
+        <div class="flex justify-end">
+          <button id="closeMenu" class="btn btn-ghost" aria-label="Close menu">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+        <a class="block py-2" href="#posts">Posts</a>
+        <a class="block py-2" href="#about">About</a>
+        <a class="block py-2" href="#contact">Contact</a>
+        <a class="block py-2" href="#subscribe">Subscribe</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="container py-12 md:py-16 grid md:grid-cols-2 gap-8 items-center">
+    <div>
+      <h1 class="text-3xl md:text-5xl font-black tracking-tight text-slate-900">
+        Gentle tools for a stronger you
+      </h1>
+      <p class="mt-4 text-slate-600 text-lg">
+        Read simple, science‑aware tips on self‑care, mindset, and energy that fit into real life.
+      </p>
+      <div class="mt-6 flex items-center gap-3">
+        <a href="#posts" class="btn btn-primary">Read Posts</a>
+        <a href="#subscribe" class="btn btn-ghost border border-gray-200">Subscribe</a>
+      </div>
+    </div>
+    <div class="relative">
+      <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=2400&auto=format&fit=crop"
+           alt="Notebook, candle, and headphones" class="rounded-3xl shadow-2xl" />
+      <div class="absolute -bottom-4 -left-4 bg-amberbrand text-white rounded-2xl px-3 py-2 shadow-lg flex items-center gap-2">
+        <i data-lucide="heart" class="w-4 h-4"></i>
+        <span class="text-sm font-semibold">Self‑care friendly</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Posts -->
+  <section id="posts" class="container">
+    <div class="card">
+      <div class="p-6 border-b">
+        <div class="flex items-center gap-2 text-tealbrand font-semibold"><i data-lucide="book-text" class="w-5 h-5"></i> Latest Posts</div>
+        <p class="text-slate-500 text-sm mt-1">Browse by category, tag, or search a keyword.</p>
+      </div>
+      <div class="p-6 space-y-4">
+        <div class="flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
+          <div id="categories" class="flex flex-wrap gap-2"></div>
+          <div class="relative w-full md:w-80">
+            <input id="search" class="w-full pl-9 pr-3 py-2 rounded-xl border" placeholder="Search posts..." />
+            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+          </div>
+        </div>
+        <div id="tags" class="flex flex-wrap gap-2"></div>
+        <div id="grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        <div id="empty" class="text-center text-sm text-slate-500 hidden">No posts match your filters yet.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modal -->
+  <div id="modal" class="fixed inset-0 z-30 hidden">
+    <div id="modalBackdrop" class="absolute inset-0 bg-black/50 backdrop"></div>
+    <div class="relative z-10 max-w-3xl w-[92%] mx-auto my-10 card overflow-hidden">
+      <div class="relative">
+        <img id="modalCover" alt="" class="h-56 w-full object-cover" />
+        <button id="modalClose" class="btn btn-ghost absolute top-3 right-3 bg-white/80 rounded-full p-2" aria-label="Close">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="p-6">
+        <div class="text-sm text-slate-500 mb-2 flex items-center gap-2">
+          <i data-lucide="calendar" class="w-4 h-4"></i>
+          <span id="modalMeta"></span>
+        </div>
+        <h3 id="modalTitle" class="text-2xl font-bold text-slate-900"></h3>
+        <div id="modalTags" class="mt-3 flex flex-wrap gap-2"></div>
+        <p id="modalContent" class="mt-4 whitespace-pre-line leading-relaxed text-slate-700"></p>
+        <div class="mt-6 flex items-center gap-3">
+          <button id="modalBack" class="btn border"><i data-lucide="chevron-left" class="w-4 h-4 mr-2"></i>Back</button>
+          <a href="#subscribe" class="btn btn-amber">Subscribe</a>
+        </div>
+      </div>
+    </div>
   </div>
 
+  <!-- About -->
+  <section id="about" class="container py-12">
+    <div class="grid md:grid-cols-2 gap-8 items-start">
+      <div>
+        <h2 class="text-2xl font-black text-tealbrand">About The Healing Room</h2>
+        <p class="mt-3 text-slate-700 leading-relaxed">
+          The Healing Room is a calm corner of the internet where we practice practical self‑care. We mix gentle
+          routines with evidence‑aware insights: journaling prompts, music‑supported focus, micro‑rest, and kind
+          boundaries. Everything here is designed to be doable on your busiest days.
+        </p>
+      </div>
+      <div class="card p-6 space-y-3">
+        <div>
+          <div class="font-semibold">Mission</div>
+          <p class="text-slate-500 text-sm">Simple tools. Warmer days. Sustainable energy.</p>
+        </div>
+        <div class="flex gap-3"><span class="w-2 h-2 rounded-full bg-amberbrand mt-2"></span><p>Make self‑care small enough to start and strong enough to matter.</p></div>
+        <div class="flex gap-3"><span class="w-2 h-2 rounded-full bg-amberbrand mt-2"></span><p>Celebrate progress over perfection—five minutes count.</p></div>
+        <div class="flex gap-3"><span class="w-2 h-2 rounded-full bg-amberbrand mt-2"></span><p>Build habits that protect your focus, time, and heart.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact" class="container py-12">
+    <div class="card">
+      <div class="p-6 border-b">
+        <div class="flex items-center gap-2"><i data-lucide="mail" class="w-5 h-5"></i><span class="font-semibold">Contact</span></div>
+        <p class="text-slate-500 text-sm">Questions, collabs, or a kind note—drop a line.</p>
+      </div>
+      <form id="contactForm" class="p-6 grid md:grid-cols-2 gap-4">
+        <div class="md:col-span-2"><input id="contactEmail" type="email" required class="w-full rounded-xl border p-2" placeholder="Your email" /></div>
+        <div class="md:col-span-2"><textarea id="contactMessage" required rows="5" class="w-full rounded-xl border p-2" placeholder="Your message"></textarea></div>
+        <div class="md:col-span-2"><button class="btn btn-primary">Send</button></div>
+      </form>
+    </div>
+  </section>
+
+  <!-- Subscribe -->
+  <section id="subscribe" class="container pb-16">
+    <div class="card">
+      <div class="p-6 border-b">
+        <div class="font-semibold">Subscribe</div>
+        <p class="text-slate-500 text-sm">Get fresh posts in your inbox once a week.</p>
+      </div>
+      <form id="subscribeForm" class="p-6 flex flex-col sm:flex-row gap-3">
+        <input id="subscribeEmail" type="email" required placeholder="Your email" class="w-full rounded-xl border p-2" />
+        <button type="submit" class="btn btn-amber">Join Free</button>
+      </form>
+      <div class="px-6 pb-6 text-xs text-slate-500">We respect your time. Unsubscribe anytime.</div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="border-t">
+    <div class="container py-8 text-sm text-slate-500 flex flex-col md:flex-row items-center justify-between gap-3">
+      <div>© <span id="year"></span> The Healing Room • Made with 💚</div>
+      <div class="flex items-center gap-4">
+        <a href="#about" class="link">About</a>
+        <a href="#contact" class="link">Contact</a>
+        <a href="#subscribe" class="link">Newsletter</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const POSTS = [
+      {
+        id: 1,
+        title: "The Healing Power of Journaling & Music",
+        date: "2025-08-31",
+        category: "Mindfulness",
+        tags: ["journaling", "music", "self-care"],
+        cover: "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?q=80&w=2400&auto=format&fit=crop",
+        excerpt: "How a simple pen, a quiet track, and ten minutes can calm your nervous system and reset your day.",
+        content: `When life feels loud, simple rituals bring you back. Start with a timer for ten minutes. Write without editing—three lines about how you feel, three lines about what you need, and three lines about what you will do next. Then press play on a mellow playlist and breathe.
+
+Music engages the limbic system; writing organizes scattered thoughts. Together, they reduce cognitive load and create a gentle path out of stress. Try it for five days and notice your baseline energy, sleep quality, and mood.`,
+      },
+      {
+        id: 2,
+        title: "Micro-Rest: 7 Tiny Breaks That Restore You",
+        date: "2025-08-18",
+        category: "Energy",
+        tags: ["rest", "habits", "productivity"],
+        cover: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=2400&auto=format&fit=crop",
+        excerpt: "Recovery doesn’t require hours—just intention. Here are science-backed micro-breaks you can take anywhere.",
+        content: `Micro-rest is about releasing tension before it compounds. Try a 60-second box-breathing cycle, a brisk 3-minute walk, a sunlight check, or a no-phone stretch. These tiny resets lower stress hormones and restore focus.`,
+      },
+      {
+        id: 3,
+        title: "Boundaries That Feel Kind (But Firm)",
+        date: "2025-07-29",
+        category: "Mindset",
+        tags: ["boundaries", "confidence", "communication"],
+        cover: "https://images.unsplash.com/photo-1496307042754-b4aa456c4a2d?q=80&w=2400&auto=format&fit=crop",
+        excerpt: "How to say no with warmth, protect your energy, and still be you.",
+        content: `Boundaries are bridges, not walls. A kind boundary names the need, offers the why, and proposes an alternative when possible. Script: “Thank you for asking. I’m at capacity this week, but I can revisit next Tuesday.”`,
+      },
+    ];
+
+    const CATEGORIES = ["All", ...Array.from(new Set(POSTS.map(p => p.category)))];
+    const TAGS = Array.from(new Set(POSTS.flatMap(p => p.tags)));
+
+    const yearEl = document.getElementById('year');
+    yearEl.textContent = new Date().getFullYear();
+
+    // Mobile menu
+    const mobileMenu = document.getElementById('mobileMenu');
+    document.getElementById('openMenu').addEventListener('click', () => mobileMenu.classList.remove('hidden'));
+    document.getElementById('closeMenu').addEventListener('click', () => mobileMenu.classList.add('hidden'));
+
+    // Build categories
+    const categoriesEl = document.getElementById('categories');
+    let activeCategory = 'All';
+    CATEGORIES.forEach(c => {
+      const btn = document.createElement('button');
+      btn.className = 'btn ' + (c === 'All' ? 'btn-primary' : 'border');
+      btn.textContent = c;
+      btn.addEventListener('click', () => {
+        activeCategory = c;
+        Array.from(categoriesEl.children).forEach(child => child.className = 'btn border');
+        btn.className = 'btn btn-primary';
+        render();
+      });
+      categoriesEl.appendChild(btn);
+    });
+
+    // Build tags
+    const tagsEl = document.getElementById('tags');
+    let activeTag = '';
+    TAGS.forEach(t => {
+      const span = document.createElement('span');
+      span.className = 'badge cursor-pointer select-none';
+      span.innerHTML = '<i data-lucide="tag" class="w-3 h-3"></i> ' + t;
+      span.addEventListener('click', () => {
+        activeTag = (activeTag === t) ? '' : t;
+        Array.from(tagsEl.children).forEach(ch => ch.classList.remove('bg-amber-200'));
+        if (activeTag) span.classList.add('bg-amber-200');
+        render();
+      });
+      tagsEl.appendChild(span);
+    });
+
+    // Search
+    const searchEl = document.getElementById('search');
+    let query = '';
+    searchEl.addEventListener('input', e => { query = e.target.value.toLowerCase(); render(); });
+
+    // Grid render
+    const gridEl = document.getElementById('grid');
+    const emptyEl = document.getElementById('empty');
+
+    function formatDate(iso) {
+      const d = new Date(iso + 'T00:00:00');
+      return d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+    }
+
+    function render() {
+      gridEl.innerHTML = '';
+      const filtered = POSTS.filter(p => {
+        const matchesQuery = (p.title + ' ' + p.excerpt + ' ' + p.content).toLowerCase().includes(query);
+        const matchesCategory = activeCategory === 'All' || p.category === activeCategory;
+        const matchesTag = !activeTag || p.tags.includes(activeTag);
+        return matchesQuery && matchesCategory && matchesTag;
+      });
+
+      emptyEl.classList.toggle('hidden', filtered.length !== 0);
+
+      filtered.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'card h-full flex flex-col';
+        card.innerHTML = `
+          <img src="${p.cover}" alt="${p.title}" class="h-40 w-full object-cover rounded-t-3xl">
+          <div class="p-6">
+            <div class="text-sm text-slate-500 flex items-center gap-2 mb-1">
+              <i data-lucide="calendar" class="w-4 h-4"></i>
+              ${formatDate(p.date)} · ${p.category}
+            </div>
+            <div class="text-lg font-semibold leading-tight">${p.title}</div>
+            <p class="text-slate-600 text-sm mt-1">${p.excerpt}</p>
+          </div>
+          <div class="p-6 mt-auto pt-0">
+            <button class="btn btn-primary w-full">Read More</button>
+          </div>
+        `;
+        const btn = card.querySelector('button');
+        btn.addEventListener('click', () => openModal(p));
+        gridEl.appendChild(card);
+      });
+
+      lucide.createIcons();
+    }
+
+    // Modal
+    const modal = document.getElementById('modal');
+    const modalBackdrop = document.getElementById('modalBackdrop');
+    const modalClose = document.getElementById('modalClose');
+    const modalBack = document.getElementById('modalBack');
+    const modalCover = document.getElementById('modalCover');
+    const modalMeta = document.getElementById('modalMeta');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalTags = document.getElementById('modalTags');
+    const modalContent = document.getElementById('modalContent');
+
+    function openModal(p) {
+      modalCover.src = p.cover;
+      modalTitle.textContent = p.title;
+      modalMeta.textContent = formatDate(p.date) + ' · ' + p.category;
+      modalTags.innerHTML = '';
+      p.tags.forEach(t => {
+        const span = document.createElement('span');
+        span.className = 'badge bg-gray-100';
+        span.innerHTML = '<i data-lucide="tag" class="w-3 h-3"></i> ' + t;
+        modalTags.appendChild(span);
+      });
+      modalContent.textContent = p.content;
+      modal.classList.remove('hidden');
+      lucide.createIcons();
+    }
+    function closeModal() { modal.classList.add('hidden'); }
+    modalBackdrop.addEventListener('click', closeModal);
+    modalClose.addEventListener('click', closeModal);
+    modalBack.addEventListener('click', closeModal);
+
+    // Forms (demo only)
+    document.getElementById('contactForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('contactEmail').value;
+      const msg = document.getElementById('contactMessage').value;
+      alert('Message sent! (demo)\n' + email + '\n' + msg);
+      e.target.reset();
+    });
+    document.getElementById('subscribeForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('subscribeEmail').value;
+      alert('Subscribed! (demo)\n' + email);
+      e.target.reset();
+    });
+
+    // Initial render & icons
+    render();
+    lucide.createIcons();
+  </script>
 </body>
 </html>
