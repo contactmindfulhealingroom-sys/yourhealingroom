@@ -4,10 +4,387 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>The Healing Room — Blog</title>
+  <!-- Tailwind via CDN (no build needed) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            tealbrand: { DEFAULT: '#0f766e' },
+            amberbrand: { DEFAULT: '#f59e0b' }
+          },
+          borderRadius: { '3xl': '1.5rem' }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://images.unsplash.com">
+  <link rel="preconnect" href="https://unpkg.com">
+  <!-- Lucide icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <meta name="description" content="Gentle tools for a stronger you — practical self‑care, mindset, and energy tips."/>
+  <style>
+    .card { @apply bg-white rounded-3xl shadow border border-gray-100; }
+    .btn { @apply inline-flex items-center justify-center rounded-xl px-4 py-2 font-medium transition; }
+    .btn-primary { @apply bg-tealbrand text-white hover:bg-teal-700; }
+    .btn-ghost { @apply hover:bg-gray-100; }
+    .btn-amber { @apply bg-amberbrand text-white hover:bg-amber-600; }
+    .badge { @apply inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs bg-gray-100; }
+    .link { @apply hover:text-tealbrand; }
+    .container { @apply max-w-6xl mx-auto px-4; }
+    .backdrop { backdrop-filter: blur(6px); }
+  </style>
 </head>
-<body style="font-family:system-ui,Arial,sans-serif; padding:24px;">
-  <h1>Welcome to The Healing Room</h1>
-  <p>Your site is connected to GitHub + Netlify. 🎉</p>
-  <p>Edit <code>index.html</code> here any time—Netlify will auto-update your live site.</p>
+<body class="min-h-screen bg-gradient-to-b from-teal-50 to-white text-slate-800">
+  <!-- Header -->
+  <header class="sticky top-0 z-20 bg-white/70 backdrop border-b">
+    <div class="container py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <i data-lucide="sparkles" class="w-5 h-5 text-amberbrand"></i>
+        <span class="font-black tracking-tight text-tealbrand text-lg">The Healing Room</span>
+      </div>
+      <nav class="hidden md:flex items-center gap-6 text-sm">
+        <a class="link" href="#posts">Posts</a>
+        <a class="link" href="#about">About</a>
+        <a class="link" href="#contact">Contact</a>
+        <a class="link" href="#subscribe">Subscribe</a>
+      </nav>
+      <button id="openMenu" class="btn btn-ghost md:hidden" aria-label="Open menu">
+        <i data-lucide="menu" class="w-5 h-5"></i>
+      </button>
+    </div>
+    <!-- Mobile menu -->
+    <div id="mobileMenu" class="hidden border-t bg-white">
+      <div class="container py-3 space-y-3">
+        <div class="flex justify-end">
+          <button id="closeMenu" class="btn btn-ghost" aria-label="Close menu">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+        <a class="block py-2" href="#posts">Posts</a>
+        <a class="block py-2" href="#about">About</a>
+        <a class="block py-2" href="#contact">Contact</a>
+        <a class="block py-2" href="#subscribe">Subscribe</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="container py-12 md:py-16 grid md:grid-cols-2 gap-8 items-center">
+    <div>
+      <h1 class="text-3xl md:text-5xl font-black tracking-tight text-slate-900">
+        Gentle tools for a stronger you
+      </h1>
+      <p class="mt-4 text-slate-600 text-lg">
+        Read simple, science‑aware tips on self‑care, mindset, and energy that fit into real life.
+      </p>
+      <div class="mt-6 flex items-center gap-3">
+        <a href="#posts" class="btn btn-primary">Read Posts</a>
+        <a href="#subscribe" class="btn btn-ghost border border-gray-200">Subscribe</a>
+      </div>
+    </div>
+    <div class="relative">
+      <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=2400&auto=format&fit=crop"
+           alt="Notebook, candle, and headphones" class="rounded-3xl shadow-2xl" />
+      <div class="absolute -bottom-4 -left-4 bg-amberbrand text-white rounded-2xl px-3 py-2 shadow-lg flex items-center gap-2">
+        <i data-lucide="heart" class="w-4 h-4"></i>
+        <span class="text-sm font-semibold">Self‑care friendly</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Posts -->
+  <section id="posts" class="container">
+    <div class="card">
+      <div class="p-6 border-b">
+        <div class="flex items-center gap-2 text-tealbrand font-semibold"><i data-lucide="book-text" class="w-5 h-5"></i> Latest Posts</div>
+        <p class="text-slate-500 text-sm mt-1">Browse by category, tag, or search a keyword.</p>
+      </div>
+      <div class="p-6 space-y-4">
+        <div class="flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
+          <div id="categories" class="flex flex-wrap gap-2"></div>
+          <div class="relative w-full md:w-80">
+            <input id="search" class="w-full pl-9 pr-3 py-2 rounded-xl border" placeholder="Search posts..." />
+            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+          </div>
+        </div>
+        <div id="tags" class="flex flex-wrap gap-2"></div>
+        <div id="grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        <div id="empty" class="text-center text-sm text-slate-500 hidden">No posts match your filters yet.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modal -->
+  <div id="modal" class="fixed inset-0 z-30 hidden">
+    <div id="modalBackdrop" class="absolute inset-0 bg-black/50 backdrop"></div>
+    <div class="relative z-10 max-w-3xl w-[92%] mx-auto my-10 card overflow-hidden">
+      <div class="relative">
+        <img id="modalCover" alt="" class="h-56 w-full object-cover" />
+        <button id="modalClose" class="btn btn-ghost absolute top-3 right-3 bg-white/80 rounded-full p-2" aria-label="Close">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="p-6">
+        <div class="text-sm text-slate-500 mb-2 flex items-center gap-2">
+          <i data-lucide="calendar" class="w-4 h-4"></i>
+          <span id="modalMeta"></span>
+        </div>
+        <h3 id="modalTitle" class="text-2xl font-bold text-slate-900"></h3>
+        <div id="modalTags" class="mt-3 flex flex-wrap gap-2"></div>
+        <p id="modalContent" class="mt-4 whitespace-pre-line leading-relaxed text-slate-700"></p>
+        <div class="mt-6 flex items-center gap-3">
+          <button id="modalBack" class="btn border"><i data-lucide="chevron-left" class="w-4 h-4 mr-2"></i>Back</button>
+          <a href="#subscribe" class="btn btn-amber">Subscribe</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- About -->
+  <section id="about" class="container py-12">
+    <div class="grid md:grid-cols-2 gap-8 items-start">
+      <div>
+        <h2 class="text-2xl font-black text-tealbrand">About The Healing Room</h2>
+        <p class="mt-3 text-slate-700 leading-relaxed">
+          The Healing Room is a calm corner of the internet where we practice practical self‑care. We mix gentle
+          routines with evidence‑aware insights: journaling prompts, music‑supported focus, micro‑rest, and kind
+          boundaries. Everything here is designed to be doable on your busiest days.
+        </p>
+      </div>
+      <div class="card p-6 space-y-3">
+        <div>
+          <div class="font-semibold">Mission</div>
+          <p class="text-slate-500 text-sm">Simple tools. Warmer days. Sustainable energy.</p>
+        </div>
+        <div class="flex gap-3"><span class="w-2 h-2 rounded-full bg-amberbrand mt-2"></span><p>Make self‑care small enough to start and strong enough to matter.</p></div>
+        <div class="flex gap-3"><span class="w-2 h-2 rounded-full bg-amberbrand mt-2"></span><p>Celebrate progress over perfection—five minutes count.</p></div>
+        <div class="flex gap-3"><span class="w-2 h-2 rounded-full bg-amberbrand mt-2"></span><p>Build habits that protect your focus, time, and heart.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact" class="container py-12">
+    <div class="card">
+      <div class="p-6 border-b">
+        <div class="flex items-center gap-2"><i data-lucide="mail" class="w-5 h-5"></i><span class="font-semibold">Contact</span></div>
+        <p class="text-slate-500 text-sm">Questions, collabs, or a kind note—drop a line.</p>
+      </div>
+      <form id="contactForm" class="p-6 grid md:grid-cols-2 gap-4">
+        <div class="md:col-span-2"><input id="contactEmail" type="email" required class="w-full rounded-xl border p-2" placeholder="Your email" /></div>
+        <div class="md:col-span-2"><textarea id="contactMessage" required rows="5" class="w-full rounded-xl border p-2" placeholder="Your message"></textarea></div>
+        <div class="md:col-span-2"><button class="btn btn-primary">Send</button></div>
+      </form>
+    </div>
+  </section>
+
+  <!-- Subscribe -->
+  <section id="subscribe" class="container pb-16">
+    <div class="card">
+      <div class="p-6 border-b">
+        <div class="font-semibold">Subscribe</div>
+        <p class="text-slate-500 text-sm">Get fresh posts in your inbox once a week.</p>
+      </div>
+      <form id="subscribeForm" class="p-6 flex flex-col sm:flex-row gap-3">
+        <input id="subscribeEmail" type="email" required placeholder="Your email" class="w-full rounded-xl border p-2" />
+        <button type="submit" class="btn btn-amber">Join Free</button>
+      </form>
+      <div class="px-6 pb-6 text-xs text-slate-500">We respect your time. Unsubscribe anytime.</div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="border-t">
+    <div class="container py-8 text-sm text-slate-500 flex flex-col md:flex-row items-center justify-between gap-3">
+      <div>© <span id="year"></span> The Healing Room • Made with 💚</div>
+      <div class="flex items-center gap-4">
+        <a href="#about" class="link">About</a>
+        <a href="#contact" class="link">Contact</a>
+        <a href="#subscribe" class="link">Newsletter</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const POSTS = [
+      {
+        id: 1,
+        title: "The Healing Power of Journaling & Music",
+        date: "2025-08-31",
+        category: "Mindfulness",
+        tags: ["journaling", "music", "self-care"],
+        cover: "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?q=80&w=2400&auto=format&fit=crop",
+        excerpt: "How a simple pen, a quiet track, and ten minutes can calm your nervous system and reset your day.",
+        content: `When life feels loud, simple rituals bring you back. Start with a timer for ten minutes. Write without editing—three lines about how you feel, three lines about what you need, and three lines about what you will do next. Then press play on a mellow playlist and breathe.
+
+Music engages the limbic system; writing organizes scattered thoughts. Together, they reduce cognitive load and create a gentle path out of stress. Try it for five days and notice your baseline energy, sleep quality, and mood.`,
+      },
+      {
+        id: 2,
+        title: "Micro-Rest: 7 Tiny Breaks That Restore You",
+        date: "2025-08-18",
+        category: "Energy",
+        tags: ["rest", "habits", "productivity"],
+        cover: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=2400&auto=format&fit=crop",
+        excerpt: "Recovery doesn’t require hours—just intention. Here are science-backed micro-breaks you can take anywhere.",
+        content: `Micro-rest is about releasing tension before it compounds. Try a 60-second box-breathing cycle, a brisk 3-minute walk, a sunlight check, or a no-phone stretch. These tiny resets lower stress hormones and restore focus.`,
+      },
+      {
+        id: 3,
+        title: "Boundaries That Feel Kind (But Firm)",
+        date: "2025-07-29",
+        category: "Mindset",
+        tags: ["boundaries", "confidence", "communication"],
+        cover: "https://images.unsplash.com/photo-1496307042754-b4aa456c4a2d?q=80&w=2400&auto=format&fit=crop",
+        excerpt: "How to say no with warmth, protect your energy, and still be you.",
+        content: `Boundaries are bridges, not walls. A kind boundary names the need, offers the why, and proposes an alternative when possible. Script: “Thank you for asking. I’m at capacity this week, but I can revisit next Tuesday.”`,
+      },
+    ];
+
+    const CATEGORIES = ["All", ...Array.from(new Set(POSTS.map(p => p.category)))];
+    const TAGS = Array.from(new Set(POSTS.flatMap(p => p.tags)));
+
+    const yearEl = document.getElementById('year');
+    yearEl.textContent = new Date().getFullYear();
+
+    // Mobile menu
+    const mobileMenu = document.getElementById('mobileMenu');
+    document.getElementById('openMenu').addEventListener('click', () => mobileMenu.classList.remove('hidden'));
+    document.getElementById('closeMenu').addEventListener('click', () => mobileMenu.classList.add('hidden'));
+
+    // Build categories
+    const categoriesEl = document.getElementById('categories');
+    let activeCategory = 'All';
+    CATEGORIES.forEach(c => {
+      const btn = document.createElement('button');
+      btn.className = 'btn ' + (c === 'All' ? 'btn-primary' : 'border');
+      btn.textContent = c;
+      btn.addEventListener('click', () => {
+        activeCategory = c;
+        Array.from(categoriesEl.children).forEach(child => child.className = 'btn border');
+        btn.className = 'btn btn-primary';
+        render();
+      });
+      categoriesEl.appendChild(btn);
+    });
+
+    // Build tags
+    const tagsEl = document.getElementById('tags');
+    let activeTag = '';
+    TAGS.forEach(t => {
+      const span = document.createElement('span');
+      span.className = 'badge cursor-pointer select-none';
+      span.innerHTML = '<i data-lucide="tag" class="w-3 h-3"></i> ' + t;
+      span.addEventListener('click', () => {
+        activeTag = (activeTag === t) ? '' : t;
+        Array.from(tagsEl.children).forEach(ch => ch.classList.remove('bg-amber-200'));
+        if (activeTag) span.classList.add('bg-amber-200');
+        render();
+      });
+      tagsEl.appendChild(span);
+    });
+
+    // Search
+    const searchEl = document.getElementById('search');
+    let query = '';
+    searchEl.addEventListener('input', e => { query = e.target.value.toLowerCase(); render(); });
+
+    // Grid render
+    const gridEl = document.getElementById('grid');
+    const emptyEl = document.getElementById('empty');
+
+    function formatDate(iso) {
+      const d = new Date(iso + 'T00:00:00');
+      return d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+    }
+
+    function render() {
+      gridEl.innerHTML = '';
+      const filtered = POSTS.filter(p => {
+        const matchesQuery = (p.title + ' ' + p.excerpt + ' ' + p.content).toLowerCase().includes(query);
+        const matchesCategory = activeCategory === 'All' || p.category === activeCategory;
+        const matchesTag = !activeTag || p.tags.includes(activeTag);
+        return matchesQuery && matchesCategory && matchesTag;
+      });
+
+      emptyEl.classList.toggle('hidden', filtered.length !== 0);
+
+      filtered.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'card h-full flex flex-col';
+        card.innerHTML = `
+          <img src="${p.cover}" alt="${p.title}" class="h-40 w-full object-cover rounded-t-3xl">
+          <div class="p-6">
+            <div class="text-sm text-slate-500 flex items-center gap-2 mb-1">
+              <i data-lucide="calendar" class="w-4 h-4"></i>
+              ${formatDate(p.date)} · ${p.category}
+            </div>
+            <div class="text-lg font-semibold leading-tight">${p.title}</div>
+            <p class="text-slate-600 text-sm mt-1">${p.excerpt}</p>
+          </div>
+          <div class="p-6 mt-auto pt-0">
+            <button class="btn btn-primary w-full">Read More</button>
+          </div>
+        `;
+        const btn = card.querySelector('button');
+        btn.addEventListener('click', () => openModal(p));
+        gridEl.appendChild(card);
+      });
+
+      lucide.createIcons();
+    }
+
+    // Modal
+    const modal = document.getElementById('modal');
+    const modalBackdrop = document.getElementById('modalBackdrop');
+    const modalClose = document.getElementById('modalClose');
+    const modalBack = document.getElementById('modalBack');
+    const modalCover = document.getElementById('modalCover');
+    const modalMeta = document.getElementById('modalMeta');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalTags = document.getElementById('modalTags');
+    const modalContent = document.getElementById('modalContent');
+
+    function openModal(p) {
+      modalCover.src = p.cover;
+      modalTitle.textContent = p.title;
+      modalMeta.textContent = formatDate(p.date) + ' · ' + p.category;
+      modalTags.innerHTML = '';
+      p.tags.forEach(t => {
+        const span = document.createElement('span');
+        span.className = 'badge bg-gray-100';
+        span.innerHTML = '<i data-lucide="tag" class="w-3 h-3"></i> ' + t;
+        modalTags.appendChild(span);
+      });
+      modalContent.textContent = p.content;
+      modal.classList.remove('hidden');
+      lucide.createIcons();
+    }
+    function closeModal() { modal.classList.add('hidden'); }
+    modalBackdrop.addEventListener('click', closeModal);
+    modalClose.addEventListener('click', closeModal);
+    modalBack.addEventListener('click', closeModal);
+
+    // Forms (demo only)
+    document.getElementById('contactForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('contactEmail').value;
+      const msg = document.getElementById('contactMessage').value;
+      alert('Message sent! (demo)\n' + email + '\n' + msg);
+      e.target.reset();
+    });
+    document.getElementById('subscribeForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('subscribeEmail').value;
+      alert('Subscribed! (demo)\n' + email);
+      e.target.reset();
+    });
+
+    // Initial render & icons
+    render();
+    lucide.createIcons();
+  </script>
 </body>
 </html>
